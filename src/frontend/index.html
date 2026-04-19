@@ -4,16 +4,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Room App</title>
+<title>Movie Night</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
 body{height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366f1,#9333ea)}
 .card{background:white;padding:32px;border-radius:20px;width:380px;box-shadow:0 15px 40px rgba(0,0,0,.25);text-align:center}
 h1{margin-bottom:20px}
 button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:10px;background:#6366f1;color:white;font-size:16px;cursor:pointer}
+button:disabled{background:#a5a5c9;cursor:not-allowed}
 .secondary{background:#e5e7eb;color:#111}
 .hidden{display:none}
 input{width:100%;padding:14px;margin-top:10px;border-radius:10px;border:1px solid #ccc;text-align:center;font-size:16px}
+#codeInput{letter-spacing:4px;text-transform:uppercase}
+.error{color:#dc2626;font-size:14px;margin-top:10px;min-height:18px}
 </style>
 </head>
 <body>
@@ -25,42 +28,83 @@ input{width:100%;padding:14px;margin-top:10px;border-radius:10px;border:1px soli
 </div>
 
 <div id="join" class="card hidden">
-<h1>Enter Code</h1>
-<input id="codeInput" placeholder="123456" />
-<button onclick="joinRoom()">Join</button>
+<h1>Join Room</h1>
+<input id="joinName" placeholder="Your name" maxlength="24" />
+<input id="codeInput" placeholder="ABCDEF" maxlength="6" />
+<div id="joinErr" class="error"></div>
+<button id="joinBtn" onclick="joinRoom()">Join</button>
 <button class="secondary" onclick="goHome()">Back</button>
 </div>
 
 <div id="create" class="card hidden">
 <h1>Create Room</h1>
-<input id="nameInput" placeholder="Your name" />
-<button onclick="createRoom()">Continue</button>
+<input id="nameInput" placeholder="Your name" maxlength="24" />
+<div id="createErr" class="error"></div>
+<button id="createBtn" onclick="createRoom()">Continue</button>
 <button class="secondary" onclick="goHome()">Back</button>
 </div>
 
 <script>
+const API = "";
+
 function showJoin(){hide();join.classList.remove('hidden')}
 function showCreate(){hide();create.classList.remove('hidden')}
 function goHome(){hide();home.classList.remove('hidden')}
 function hide(){home.classList.add('hidden');join.classList.add('hidden');create.classList.add('hidden')}
 
-function createRoom(){
-const code=Math.floor(100000+Math.random()*900000);
-const name=nameInput.value.trim();
-if(!name) return;
-localStorage.setItem('roomCode',code);
-localStorage.setItem('hostName',name);
-location.href='host.html';
+async function createRoom(){
+  const name=nameInput.value.trim();
+  const errEl=document.getElementById('createErr');
+  errEl.textContent='';
+  if(!name){errEl.textContent='Enter your name.';return;}
+
+  createBtn.disabled=true;createBtn.textContent='Creating...';
+  try{
+    const res=await fetch(`${API}/rooms`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({display_name:name,use_premade:true})
+    });
+    const data=await res.json();
+    if(!res.ok){errEl.textContent=data.error||'Failed to create room.';return;}
+    localStorage.setItem('roomCode',data.code);
+    localStorage.setItem('displayName',name);
+    localStorage.setItem('isHost','1');
+    location.href='host.html';
+  }catch(e){
+    errEl.textContent='Could not reach the server.';
+  }finally{
+    createBtn.disabled=false;createBtn.textContent='Continue';
+  }
 }
 
-function joinRoom(){
-const code = codeInput.value.trim();
-if(!code) return;
-localStorage.setItem('roomCode',code);
-location.href='player.html';
+async function joinRoom(){
+  const name=joinName.value.trim();
+  const code=codeInput.value.trim().toUpperCase();
+  const errEl=document.getElementById('joinErr');
+  errEl.textContent='';
+  if(!name){errEl.textContent='Enter your name.';return;}
+  if(!/^[A-Z]{6}$/.test(code)){errEl.textContent='Code must be 6 letters.';return;}
+
+  joinBtn.disabled=true;joinBtn.textContent='Joining...';
+  try{
+    const res=await fetch(`${API}/rooms/${code}/join`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({display_name:name})
+    });
+    const data=await res.json();
+    if(!res.ok){errEl.textContent=data.error||'Failed to join.';return;}
+    localStorage.setItem('roomCode',data.code);
+    localStorage.setItem('displayName',name);
+    localStorage.setItem('isHost','0');
+    location.href='player.html';
+  }catch(e){
+    errEl.textContent='Could not reach the server.';
+  }finally{
+    joinBtn.disabled=false;joinBtn.textContent='Join';
+  }
 }
 </script>
 </body>
 </html>
-
-

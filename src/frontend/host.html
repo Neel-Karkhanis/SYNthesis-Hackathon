@@ -1,4 +1,3 @@
-
 <!-- host.html -->
 <!DOCTYPE html>
 <html lang="en">
@@ -7,54 +6,71 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Host</title>
 <style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333ea);color:white;text-align:center;padding:30px}
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333ea);color:white;text-align:center;padding:30px;min-height:100vh}
 h1{margin-bottom:10px}
+.code{font-size:42px;font-weight:bold;letter-spacing:8px;margin:10px 0;background:rgba(255,255,255,.15);padding:14px;border-radius:12px;display:inline-block}
+.players{margin:10px 0;opacity:.9}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;max-width:1000px;margin:20px auto}
-.movie{background:white;color:black;border-radius:16px;padding:10px;cursor:pointer;transition:.2s}
-.movie:hover{transform:scale(1.05)}
-.selected{border:4px solid #22c55e}
-img{width:100%;border-radius:12px}
-button{margin-top:20px;padding:14px 24px;border:none;border-radius:10px;background:#22c55e;color:white;font-size:16px;cursor:pointer}
+.movie{background:white;color:black;border-radius:16px;padding:10px}
+.movie img{width:100%;border-radius:12px;aspect-ratio:2/3;object-fit:cover}
+.movie p{margin-top:8px;font-size:14px;font-weight:bold}
+button{margin-top:20px;padding:14px 28px;border:none;border-radius:10px;background:#22c55e;color:white;font-size:16px;cursor:pointer}
+button:disabled{background:#9ca3af;cursor:not-allowed}
+.err{color:#fecaca;margin-top:10px}
 </style>
 </head>
 <body>
 
-<h1>Select Movies</h1>
-<p>Room Code: <span id="code"></span></p>
+<h1>Your Room</h1>
+<div class="code" id="code"></div>
+<div class="players">Players: <span id="players">1</span></div>
+<p>Share the code with your friends!</p>
 
+<h2 style="margin-top:30px">Movie Catalog</h2>
 <div id="grid" class="grid"></div>
-<button onclick="startGame()">Start Game</button>
+<div id="err" class="err"></div>
+<button onclick="startGame()">Start Swiping</button>
 
 <script>
-document.getElementById('code').innerText=localStorage.getItem('roomCode');
+const API="";
+const code=localStorage.getItem('roomCode');
+const name=localStorage.getItem('displayName');
+document.getElementById('code').innerText=code||'???';
 
-let selected=[];
-const movies=[
-{title:'Inception',img:'https://via.placeholder.com/200'},
-{title:'Interstellar',img:'https://via.placeholder.com/200'},
-{title:'Matrix',img:'https://via.placeholder.com/200'},
-{title:'Avatar',img:'https://via.placeholder.com/200'}
-];
+async function loadMovies(){
+  try{
+    const res=await fetch(`${API}/rooms/${code}/movies`);
+    const movies=await res.json();
+    if(!res.ok){document.getElementById('err').textContent=movies.error||'Failed to load movies.';return;}
+    const grid=document.getElementById('grid');
+    grid.innerHTML='';
+    movies.forEach(m=>{
+      const div=document.createElement('div');
+      div.className='movie';
+      const img=m.poster?`<img src="${m.poster}">`:`<div style="aspect-ratio:2/3;background:#ddd;border-radius:12px"></div>`;
+      div.innerHTML=`${img}<p>${m.title}</p>`;
+      grid.appendChild(div);
+    });
+  }catch(e){
+    document.getElementById('err').textContent='Could not reach the server.';
+  }
+}
 
-movies.forEach(m=>{
-const div=document.createElement('div');
-div.className='movie';
-div.innerHTML=`<img src="${m.img}"><p>${m.title}</p>`;
-
-div.onclick=()=>{
-div.classList.toggle('selected');
-if(selected.includes(m.title)) selected=selected.filter(x=>x!==m.title);
-else selected.push(m.title);
-};
-
-document.getElementById('grid').appendChild(div);
-});
+async function pollStatus(){
+  try{
+    const res=await fetch(`${API}/rooms/${code}/status`);
+    const data=await res.json();
+    if(res.ok){document.getElementById('players').innerText=data.total;}
+  }catch(e){}
+}
 
 function startGame(){
-if(selected.length===0){alert('Select movies');return;}
-localStorage.setItem('selectedMovies',JSON.stringify(selected));
-alert('Game starting');
+  location.href='player.html';
 }
+
+loadMovies();
+pollStatus();
+setInterval(pollStatus,2000);
 </script>
 </body>
 </html>

@@ -6,9 +6,14 @@ from movie_catalog import initialize_catalog, search_movies, add_movie_to_room, 
 from voting import swipe, finish_voting, get_voting_status
 from movie_selection import get_results
 
-app = Flask(__name__, static_folder="../../frontend", static_url_path="")
+app = Flask(__name__, static_folder="../frontend", static_url_path="")
+
+
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
 CORS(app)
-TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "")
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "63b4352868de674f090b64851438594e")
 
 
 @app.before_request
@@ -162,4 +167,4 @@ def results(code):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)

@@ -21,7 +21,8 @@ A real-time group movie picker. Create a room, invite friends, rate movies, and 
 
 ## Tech Stack
 
-_Fill in your stack here_
+- Front end web
+- 
 
 ## Running Locally
 
@@ -40,3 +41,4 @@ cd cinevote
 ## Team
 
 - Neel Karkhanis
+-John Michael Wittenberger

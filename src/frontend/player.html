@@ -1,0 +1,129 @@
+<!-- player.html (TINDER STYLE SWIPE) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swipe Movies</title>
+<style>
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333ea);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+.card{width:320px;height:480px;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.3);position:relative;overflow:hidden}
+.card img{width:100%;height:100%;object-fit:cover}
+.overlay{position:absolute;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.7));width:100%;color:white;padding:20px}
+.label{position:absolute;top:20px;font-size:24px;font-weight:bold;padding:8px 16px;border-radius:8px;display:none}
+.like{left:20px;color:#22c55e;border:3px solid #22c55e}
+.nope{right:20px;color:#ef4444;border:3px solid #ef4444}
+.centerText{text-align:center;margin-top:20px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div id="waiting" class="centerText">
+<h2>Waiting for host...</h2>
+<p>Room: <span id="code"></span></p>
+</div>
+
+<div id="swipeContainer" class="hidden">
+<div id="card" class="card">
+<div class="label like" id="likeLabel">LIKE</div>
+<div class="label nope" id="nopeLabel">NOPE</div>
+<img id="poster">
+<div class="overlay"><h3 id="title"></h3></div>
+</div>
+</div>
+
+<div id="done" class="centerText hidden">
+<h2>Waiting for results...</h2>
+</div>
+
+<script>
+const code=localStorage.getItem('roomCode');
+document.getElementById('code').innerText=code;
+
+setTimeout(()=>{
+waiting.classList.add('hidden');
+swipeContainer.classList.remove('hidden');
+loadMovie();
+},1500);
+
+const movies=[
+{title:'Inception',img:'https://via.placeholder.com/400x600'},
+{title:'Interstellar',img:'https://via.placeholder.com/400x600'},
+{title:'Matrix',img:'https://via.placeholder.com/400x600'}
+];
+
+let index=0;
+let startX=0;
+let currentX=0;
+let dragging=false;
+
+const card=document.getElementById('card');
+
+function loadMovie(){
+if(index>=movies.length){
+swipeContainer.classList.add('hidden');
+done.classList.remove('hidden');
+return;
+}
+poster.src=movies[index].img;
+title.innerText=movies[index].title;
+}
+
+card.addEventListener('mousedown',start);
+card.addEventListener('touchstart',start);
+
+function start(e){
+dragging=true;
+startX=getX(e);
+document.addEventListener('mousemove',move);
+document.addEventListener('touchmove',move);
+document.addEventListener('mouseup',end);
+document.addEventListener('touchend',end);
+}
+
+function move(e){
+if(!dragging) return;
+currentX=getX(e)-startX;
+card.style.transform=`translateX(${currentX}px) rotate(${currentX/10}deg)`;
+
+if(currentX>50){likeLabel.style.display='block';nopeLabel.style.display='none'}
+else if(currentX<-50){nopeLabel.style.display='block';likeLabel.style.display='none'}
+else{likeLabel.style.display='none';nopeLabel.style.display='none'}
+}
+
+function end(){
+dragging=false;
+if(currentX>120){swipe(true)}
+else if(currentX<-120){swipe(false)}
+else{resetCard()}
+
+document.removeEventListener('mousemove',move);
+document.removeEventListener('touchmove',move);
+}
+
+function swipe(like){
+card.style.transition='0.3s';
+card.style.transform=`translateX(${like?500:-500}px) rotate(${like?20:-20}deg)`;
+
+setTimeout(()=>{
+index++;
+card.style.transition='none';
+resetCard();
+loadMovie();
+},300);
+}
+
+function resetCard(){
+currentX=0;
+card.style.transform='';
+likeLabel.style.display='none';
+nopeLabel.style.display='none';
+}
+
+function getX(e){return e.touches?e.touches[0].clientX:e.clientX}
+</script>
+</body>
+</html>
+
+

@@ -4,25 +4,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Movie Night</title>
+<title>Votely</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
-body{height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366f1,#9333ea)}
-.card{background:white;padding:32px;border-radius:20px;width:380px;box-shadow:0 15px 40px rgba(0,0,0,.25);text-align:center}
-h1{margin-bottom:20px}
-button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:10px;background:#6366f1;color:white;font-size:16px;cursor:pointer}
-button:disabled{background:#a5a5c9;cursor:not-allowed}
-.secondary{background:#e5e7eb;color:#111}
+:root{
+  --sky-left:#3052ff;
+  --sky-right:#6d52ff;
+  --card-bg:#ffffff;
+  --card-border:#1b1840;
+  --text:#1a1835;
+  --muted:#685f9d;
+  --accent:#ffcb21;
+  --accent-strong:#ffb800;
+  --accent-text:#1a1835;
+  --secondary:#ffffff;
+  --secondary-text:#2b2762;
+  --input-border:#cdc9ef;
+  --danger:#c73454;
+  --pink:#ff88d3;
+  --mint:#7cf3e6;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:"Arial Rounded MT Bold","Avenir Next Rounded","Nunito","Trebuchet MS",Arial,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 18px;
+  color:var(--text);
+  background:linear-gradient(90deg, var(--sky-left), var(--sky-right));
+  position:relative;
+  overflow:hidden;
+}
+
+.scene{
+  width:min(100%, 1160px);
+  min-height:760px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.sparkle,
+.dot{
+  position:absolute;
+  z-index:2;
+  pointer-events:none;
+}
+
+.sparkle{
+  width:34px;
+  height:34px;
+  background:url('assets/star-sparkle.png') center / contain no-repeat;
+}
+
+.dot{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:2px solid var(--card-border);
+}
+
+.dot.pink{background:var(--pink)}
+.dot.mint{background:var(--mint)}
+
+.ui-stack{
+  position:relative;
+  z-index:3;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:1;
+  margin-top:0;
+}
+
+.card{
+  width:min(100%, 555px);
+  margin-inline:auto;
+  padding:38px 34px 28px;
+  border-radius:28px;
+  border:3px solid var(--card-border);
+  background:var(--card-bg);
+  box-shadow:
+    0 20px 0 rgba(27,24,64,.15),
+    0 26px 60px rgba(22,15,76,.24);
+  text-align:center;
+  position:relative;
+}
+
+.card::before{
+  content:"movie night made simple";
+  display:block;
+  margin-bottom:16px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:none;
+  color:var(--muted);
+}
+
+h1{
+  margin-bottom:18px;
+  font-size:clamp(2.35rem, 5vw, 3rem);
+  line-height:1;
+  letter-spacing:-.03em;
+}
+
+.card:not(#home) h1{
+  margin-bottom:18px;
+}
+
+button{
+  width:100%;
+  padding:15px 18px;
+  margin-top:12px;
+  border:3px solid var(--card-border);
+  border-radius:14px;
+  background:linear-gradient(180deg, #ffe66b, var(--accent-strong));
+  color:var(--accent-text);
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:.01em;
+  cursor:pointer;
+  box-shadow:0 8px 0 rgba(27,24,64,.14);
+  transition:
+    transform .22s cubic-bezier(.22,1,.36,1),
+    box-shadow .22s cubic-bezier(.22,1,.36,1),
+    filter .18s ease,
+    background .22s ease;
+  will-change:transform;
+}
+
+button:hover:not(:disabled){
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 14px 0 rgba(27,24,64,.12);
+  filter:saturate(1.08) brightness(1.03);
+}
+
+button:active:not(:disabled){
+  transform:translateY(2px) scale(.99);
+  box-shadow:0 4px 0 rgba(27,24,64,.12);
+  filter:saturate(.98);
+}
+
+button:disabled{
+  background:linear-gradient(135deg, #d5d9e6, #b8bfd1);
+  box-shadow:none;
+  cursor:not-allowed;
+}
+
+.secondary{
+  background:var(--secondary);
+  color:var(--secondary-text);
+  box-shadow:0 8px 0 rgba(27,24,64,.08);
+}
+
+.secondary:hover:not(:disabled){
+  box-shadow:0 12px 0 rgba(27,24,64,.06);
+  background:#f2f0ff;
+}
+
 .hidden{display:none}
-input{width:100%;padding:14px;margin-top:10px;border-radius:10px;border:1px solid #ccc;text-align:center;font-size:16px}
-#codeInput{letter-spacing:4px;text-transform:uppercase}
-.error{color:#dc2626;font-size:14px;margin-top:10px;min-height:18px}
+
+input{
+  width:100%;
+  padding:15px 16px;
+  margin-top:12px;
+  border-radius:14px;
+  border:3px solid var(--input-border);
+  background:#fbfaff;
+  text-align:center;
+  font-size:16px;
+  color:var(--text);
+  transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+input::placeholder{
+  color:#8a97aa;
+}
+
+input:focus{
+  outline:none;
+  border-color:#7c6cff;
+  box-shadow:0 0 0 4px rgba(124,108,255,.15);
+  transform:translateY(-1px);
+}
+
+#codeInput{
+  letter-spacing:6px;
+  text-transform:uppercase;
+  font-weight:700;
+}
+
+.error{
+  color:var(--danger);
+  font-size:14px;
+  margin-top:12px;
+  min-height:18px;
+}
+
+.catalogMode{
+  flex:1;
+  margin-top:0;
+  padding:12px 10px;
+  font-size:14px;
+}
+
+.catalogMode.active{
+  background:linear-gradient(180deg,#ffe66b,var(--accent-strong));
+  color:var(--accent-text);
+}
+
+@media (max-width: 520px){
+  body{
+    padding:18px;
+  }
+
+  .scene{
+    min-height:auto;
+  }
+
+  .card{
+    width:min(100%, 520px);
+    padding:30px 22px 22px;
+    border-radius:24px;
+  }
+
+  .ui-stack{
+    margin-top:0;
+  }
+}
 </style>
 </head>
 <body>
+<div class="scene">
+<div class="dot pink" style="top:146px;left:18px;"></div>
+<div class="dot mint" style="top:430px;left:24px;"></div>
+<div class="dot pink" style="top:618px;left:42px;"></div>
+<div class="dot pink" style="top:34px;left:180px;"></div>
+<div class="dot mint" style="top:88px;left:320px;"></div>
+<div class="dot mint" style="top:210px;left:110px;"></div>
+<div class="dot pink" style="top:292px;left:248px;"></div>
+<div class="dot mint" style="top:472px;left:180px;"></div>
+<div class="dot mint" style="top:158px;right:22px;"></div>
+<div class="dot pink" style="top:70px;right:220px;"></div>
+<div class="dot mint" style="top:126px;right:120px;"></div>
+<div class="dot pink" style="top:246px;right:210px;"></div>
+<div class="dot mint" style="top:404px;right:154px;"></div>
+<div class="dot pink" style="top:514px;right:300px;"></div>
+<div class="dot pink" style="top:606px;right:34px;"></div>
+<div class="sparkle" style="top:224px;left:-6px;"></div>
+<div class="sparkle" style="top:118px;left:66px;"></div>
+<div class="sparkle" style="top:82px;left:480px;"></div>
+<div class="sparkle" style="top:328px;left:88px;"></div>
+<div class="sparkle" style="top:540px;left:340px;"></div>
+<div class="sparkle" style="top:104px;right:360px;"></div>
+<div class="sparkle" style="top:140px;right:54px;"></div>
+<div class="sparkle" style="top:356px;right:108px;"></div>
+<div class="sparkle" style="top:566px;right:390px;"></div>
+<div class="sparkle" style="top:260px;right:-4px;"></div>
+<div class="sparkle" style="top:612px;right:52px;"></div>
 
+<div class="ui-stack">
 <div id="home" class="card">
-<h1>Movie Night</h1>
+<h1>Votely</h1>
 <button onclick="showJoin()">Join Room</button>
 <button class="secondary" onclick="showCreate()">Create Room</button>
 </div>
@@ -39,13 +293,35 @@ input{width:100%;padding:14px;margin-top:10px;border-radius:10px;border:1px soli
 <div id="create" class="card hidden">
 <h1>Create Room</h1>
 <input id="nameInput" placeholder="Your name" maxlength="24" />
+<div style="margin-top:14px;text-align:left;font-weight:900;color:var(--muted);font-size:13px;">CATALOG</div>
+<div style="display:flex;gap:8px;margin-top:6px;">
+  <button type="button" id="modePremade" class="catalogMode active" onclick="setMode(true)">10 Popular</button>
+  <button type="button" id="modeCustom" class="catalogMode secondary" onclick="setMode(false)">Pick My Own</button>
+</div>
 <div id="createErr" class="error"></div>
 <button id="createBtn" onclick="createRoom()">Continue</button>
 <button class="secondary" onclick="goHome()">Back</button>
 </div>
+</div>
+</div>
 
 <script>
 const API = "";
+let usePremade = true;
+const storage = window.sessionStorage;
+
+function persistSession(key, value){
+  storage.setItem(key, value);
+  localStorage.setItem(key, value);
+}
+
+function setMode(premade){
+  usePremade = premade;
+  document.getElementById('modePremade').classList.toggle('active',premade);
+  document.getElementById('modePremade').classList.toggle('secondary',!premade);
+  document.getElementById('modeCustom').classList.toggle('active',!premade);
+  document.getElementById('modeCustom').classList.toggle('secondary',premade);
+}
 
 function showJoin(){hide();join.classList.remove('hidden')}
 function showCreate(){hide();create.classList.remove('hidden')}
@@ -63,13 +339,14 @@ async function createRoom(){
     const res=await fetch(`${API}/rooms`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({display_name:name,use_premade:true})
+      body:JSON.stringify({display_name:name,use_premade:usePremade})
     });
     const data=await res.json();
     if(!res.ok){errEl.textContent=data.error||'Failed to create room.';return;}
-    localStorage.setItem('roomCode',data.code);
-    localStorage.setItem('displayName',name);
-    localStorage.setItem('isHost','1');
+    persistSession('roomCode',data.code);
+    persistSession('displayName',name);
+    persistSession('isHost','1');
+    persistSession('usePremade',usePremade?'1':'0');
     location.href='host.html';
   }catch(e){
     errEl.textContent='Could not reach the server.';
@@ -95,9 +372,9 @@ async function joinRoom(){
     });
     const data=await res.json();
     if(!res.ok){errEl.textContent=data.error||'Failed to join.';return;}
-    localStorage.setItem('roomCode',data.code);
-    localStorage.setItem('displayName',name);
-    localStorage.setItem('isHost','0');
+    persistSession('roomCode',data.code);
+    persistSession('displayName',name);
+    persistSession('isHost','0');
     location.href='player.html';
   }catch(e){
     errEl.textContent='Could not reach the server.';

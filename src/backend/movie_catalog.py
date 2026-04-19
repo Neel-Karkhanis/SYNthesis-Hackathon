@@ -25,7 +25,7 @@ def initialize_catalog(code, api_key, use_premade=True):
 
 def fetch_movies_for_room(code, api_key):
     """
-    Fetch 20 popular movies from TMDB and store them in the given room.
+    Fetch 10 popular movies from TMDB and store them in the given room.
     Raises ValueError if the room doesn't exist.
     Raises RuntimeError if the TMDB request fails.
     """
@@ -41,7 +41,7 @@ def fetch_movies_for_room(code, api_key):
     if not response.ok:
         raise RuntimeError(f"TMDB request failed: {response.status_code} {response.text}")
 
-    raw = response.json().get("results", [])[:20]
+    raw = response.json().get("results", [])[:10]
 
     movies = [
         {

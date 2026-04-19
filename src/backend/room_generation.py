@@ -22,6 +22,7 @@ def create_room(host_name):
         "votes": {},           # { movie_id: { user: "yes"/"no" } }
         "done": set(),         # users who finished voting
         "voting_started": False,
+        "started": False,      # host has clicked Start Swiping
     }
     return code
 

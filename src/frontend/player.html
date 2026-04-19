@@ -6,41 +6,212 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Swipe Movies</title>
 <style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333ea);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.card{width:320px;height:480px;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.3);position:relative;overflow:hidden;user-select:none}
+:root{
+  --sky-left:#3052ff;
+  --sky-right:#6d52ff;
+  --card-bg:#ffffff;
+  --card-border:#1b1840;
+  --text:#1a1835;
+  --muted:#685f9d;
+  --accent:#ffcb21;
+  --accent-strong:#ffb800;
+  --accent-text:#1a1835;
+  --secondary:#ffffff;
+  --secondary-text:#2b2762;
+  --pink:#ff88d3;
+  --mint:#7cf3e6;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Arial Rounded MT Bold","Avenir Next Rounded","Nunito","Trebuchet MS",Arial,sans-serif}
+body{
+  min-height:100vh;
+  padding:20px;
+  color:#fff;
+  background:linear-gradient(90deg,var(--sky-left),var(--sky-right));
+  overflow-x:hidden;
+}
+.scene{
+  min-height:calc(100vh - 40px);
+  width:min(100%,1180px);
+  margin:0 auto;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.sparkle,.dot{position:absolute;z-index:1;pointer-events:none}
+.sparkle{width:34px;height:34px;background:url('assets/star-sparkle.png') center / contain no-repeat}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--card-border)}
+.dot.pink{background:var(--pink)}
+.dot.mint{background:var(--mint)}
+.panel{
+  position:relative;
+  z-index:2;
+  width:min(100%,620px);
+  text-align:center;
+}
+.swipeAura{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(100vw, 860px);
+  height:min(100vh, 920px);
+  transform:translate(-50%,-50%);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease, background .18s ease;
+  z-index:1;
+  filter:blur(26px);
+}
+.swipeAura.yes{
+  background:
+    radial-gradient(circle at center, rgba(176,255,208,.84), rgba(76,237,135,.5) 30%, rgba(34,197,94,.24) 50%, rgba(34,197,94,.09) 66%, rgba(34,197,94,0) 82%);
+}
+.swipeAura.no{
+  background:
+    radial-gradient(circle at center, rgba(255,186,186,.8), rgba(255,108,108,.46) 30%, rgba(239,68,68,.24) 50%, rgba(239,68,68,.09) 66%, rgba(239,68,68,0) 82%);
+}
+.hero{
+  background:var(--card-bg);
+  color:var(--text);
+  border:3px solid var(--card-border);
+  border-radius:28px;
+  box-shadow:0 20px 0 rgba(27,24,64,.15),0 26px 60px rgba(22,15,76,.24);
+  padding:30px 24px 24px;
+}
+.hero::before{
+  content:"movie night made simple";
+  display:block;
+  margin-bottom:16px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+  color:var(--muted);
+}
+.hero h2,.hero h1{color:var(--text);font-size:clamp(2rem,5vw,2.8rem);line-height:1.02;margin-bottom:10px}
+.hero p,.progress-meta{color:var(--secondary-text)}
+.code-line{margin-top:6px;font-weight:900;color:var(--muted)}
+.card{
+  width:min(100%,360px);
+  height:520px;
+  margin:0 auto;
+  background:#fff;
+  border-radius:24px;
+  border:3px solid var(--card-border);
+  box-shadow:0 16px 0 rgba(27,24,64,.1),0 24px 50px rgba(0,0,0,.22);
+  position:relative;
+  overflow:hidden;
+  user-select:none;
+}
 .card img{width:100%;height:100%;object-fit:cover;pointer-events:none}
-.overlay{position:absolute;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85));width:100%;color:white;padding:20px}
-.overlay h3{margin-bottom:6px}
-.overlay p{font-size:13px;opacity:.85;max-height:70px;overflow:hidden}
-.label{position:absolute;top:20px;font-size:24px;font-weight:bold;padding:8px 16px;border-radius:8px;display:none;background:rgba(255,255,255,.9)}
-.like{left:20px;color:#22c55e;border:3px solid #22c55e}
+.swipeGlow{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease, background .16s ease;
+}
+.swipeGlow.yes{
+  background:
+    radial-gradient(circle at center, rgba(120,255,176,.58), rgba(34,197,94,.34) 42%, rgba(34,197,94,.12) 68%, rgba(34,197,94,0) 84%),
+    linear-gradient(180deg, rgba(34,197,94,.18), rgba(34,197,94,.28));
+}
+.swipeGlow.no{
+  background:
+    radial-gradient(circle at center, rgba(255,145,145,.56), rgba(239,68,68,.34) 42%, rgba(239,68,68,.12) 68%, rgba(239,68,68,0) 84%),
+    linear-gradient(180deg, rgba(239,68,68,.16), rgba(239,68,68,.28));
+}
+.overlay{position:absolute;bottom:0;background:linear-gradient(transparent,rgba(12,10,32,.9));width:100%;color:white;padding:22px 18px 18px;text-align:left}
+.overlay h3{margin-bottom:6px;font-size:1.5rem}
+.overlay p{font-size:13px;opacity:.88;max-height:76px;overflow:hidden;line-height:1.35}
+.label{
+  position:absolute;
+  top:20px;
+  font-size:24px;
+  font-weight:900;
+  padding:8px 16px;
+  border-radius:12px;
+  display:none;
+  background:rgba(255,255,255,.94);
+}
+.like{left:20px;color:#1da95a;border:3px solid #1da95a}
 .nope{right:20px;color:#ef4444;border:3px solid #ef4444}
-.centerText{text-align:center;margin-top:20px}
+.centerText{text-align:center}
 .hidden{display:none}
-.buttons{margin-top:20px;display:flex;gap:20px}
-.buttons button{width:60px;height:60px;border-radius:50%;border:none;font-size:24px;cursor:pointer}
-.noBtn{background:#ef4444;color:white}
-.yesBtn{background:#22c55e;color:white}
-.progress{margin-top:15px;opacity:.85}
-.resultCard{background:white;color:black;border-radius:16px;padding:20px;max-width:360px;text-align:center;margin-top:20px}
-.winner{border:4px solid #22c55e;padding:16px}
-.winner img{width:100%;border-radius:12px;aspect-ratio:2/3;object-fit:cover}
+.buttons{margin-top:22px;display:flex;gap:20px;justify-content:center}
+.buttons button{
+  width:68px;height:68px;border-radius:50%;border:3px solid var(--card-border);font-size:28px;cursor:pointer;
+  box-shadow:0 8px 0 rgba(27,24,64,.14);
+  transition:
+    transform .22s cubic-bezier(.22,1,.36,1),
+    box-shadow .22s cubic-bezier(.22,1,.36,1),
+    filter .18s ease,
+    background .22s ease;
+  will-change:transform;
+}
+.noBtn{background:#fff;color:#ef4444}
+.yesBtn{background:linear-gradient(180deg,#ffe66b,var(--accent-strong));color:var(--accent-text)}
+.buttons button:hover:not(:disabled){
+  transform:translateY(-4px) scale(1.03);
+  box-shadow:0 14px 0 rgba(27,24,64,.12);
+  filter:saturate(1.08) brightness(1.03);
+}
+.buttons button:active:not(:disabled){
+  transform:translateY(2px) scale(.98);
+  box-shadow:0 4px 0 rgba(27,24,64,.12);
+  filter:saturate(.98);
+}
+.progress{margin-top:16px;color:#eef0ff;font-weight:900}
+.resultCard{
+  background:white;
+  color:var(--text);
+  border-radius:22px;
+  padding:20px;
+  max-width:420px;
+  text-align:center;
+  margin:20px auto 0;
+  border:3px solid var(--card-border);
+  box-shadow:0 12px 0 rgba(27,24,64,.1);
+}
+.winner{padding:16px}
+.winner img{width:100%;border-radius:14px;aspect-ratio:2/3;object-fit:cover;border:3px solid var(--card-border)}
 .rank{margin-top:14px;text-align:left;font-size:14px}
-.rank div{padding:6px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
+.rank div{padding:8px 0;border-bottom:1px solid #e7e4fb;display:flex;justify-content:space-between;gap:10px}
+@media (max-width:600px){
+  body{padding:16px}
+  .scene{min-height:calc(100vh - 32px)}
+  .hero{padding:24px 18px 20px;border-radius:24px}
+  .card{height:480px}
+}
 </style>
 </head>
 <body>
+<div class="scene">
+<div class="dot pink" style="top:28px;left:18px;"></div>
+<div class="dot mint" style="top:110px;left:120px;"></div>
+<div class="dot pink" style="top:480px;left:42px;"></div>
+<div class="dot mint" style="top:92px;left:420px;"></div>
+<div class="dot pink" style="top:62px;right:160px;"></div>
+<div class="dot mint" style="top:172px;right:44px;"></div>
+<div class="dot pink" style="top:520px;right:60px;"></div>
+<div class="sparkle" style="top:122px;left:38px;"></div>
+<div class="sparkle" style="top:312px;left:112px;"></div>
+<div class="sparkle" style="top:94px;right:286px;"></div>
+<div class="sparkle" style="top:154px;right:14px;"></div>
+<div class="sparkle" style="top:444px;right:110px;"></div>
 
-<div id="waiting" class="centerText">
+<div class="panel">
+<div id="swipeAura" class="swipeAura"></div>
+<div id="waiting" class="hero centerText">
 <h2>Loading...</h2>
-<p>Room: <span id="code"></span></p>
+<p class="code-line">Room: <span id="code"></span></p>
 </div>
 
-<div id="swipeContainer" class="hidden">
+<div id="swipeContainer" class="hidden centerText">
 <div id="card" class="card">
 <div class="label like" id="likeLabel">LIKE</div>
 <div class="label nope" id="nopeLabel">NOPE</div>
 <img id="poster">
+<div id="swipeGlow" class="swipeGlow"></div>
 <div class="overlay"><h3 id="title"></h3><p id="overview"></p></div>
 </div>
 <div class="buttons">
@@ -50,25 +221,47 @@ body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333e
 <div class="progress" id="progress"></div>
 </div>
 
-<div id="done" class="centerText hidden">
+<div id="done" class="hero centerText hidden">
 <h2 id="doneMsg">Waiting for others...</h2>
 <p id="doneDetail"></p>
 </div>
 
 <div id="resultsWrap" class="hidden centerText">
-<h2>The winner is</h2>
+<div class="hero"><h2>The winner is</h2></div>
 <div id="winnerCard" class="resultCard winner"></div>
 <div class="resultCard" id="rankList" style="margin-top:20px"><h3>Full Ranking</h3><div class="rank" id="rankBody"></div></div>
+</div>
+</div>
 </div>
 
 <script>
 const API="";
-const code=localStorage.getItem('roomCode');
-const name=localStorage.getItem('displayName');
+const readStored = key => sessionStorage.getItem(key) ?? localStorage.getItem(key);
+const code=readStored('roomCode');
+const name=readStored('displayName');
 document.getElementById('code').innerText=code||'???';
 
 let movies=[];
 let index=0;
+let swipeLocked=false;
+let lastVoteError='';
+
+const isHost=readStored('isHost')==='1';
+
+async function waitForStart(){
+  try{
+    const res=await fetch(`${API}/rooms/${code}/status`);
+    const data=await res.json();
+    if(res.ok){
+      if(data.started){loadMovies();return;}
+      document.getElementById('waiting').innerHTML=
+        `<h2>Waiting for host to start...</h2>
+         <p class="code-line">Room: <span>${code}</span></p>
+         <p style="margin-top:10px">${data.total} player${data.total===1?'':'s'} in the room</p>`;
+    }
+  }catch(e){}
+  setTimeout(waitForStart,1500);
+}
 
 async function loadMovies(){
   try{
@@ -96,26 +289,47 @@ function loadMovie(){
   document.getElementById('progress').innerText=`${index+1} / ${movies.length}`;
 }
 
-async function sendVote(like){
-  try{
-    await fetch(`${API}/rooms/${code}/vote`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({display_name:name,movie_id:movies[index].id,vote:like?'yes':'no'})
+const voteQueue=[];
+
+function sendVote(movieId,like){
+  const p=fetch(`${API}/rooms/${code}/vote`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({display_name:name,movie_id:movieId,vote:like?'yes':'no'})
+  })
+    .then(async res=>{
+      if(res.ok){
+        lastVoteError='';
+        return true;
+      }
+      let data=null;
+      try{ data=await res.json(); }catch(e){}
+      lastVoteError=data?.error||'Vote was rejected by the server.';
+      return false;
+    })
+    .catch(()=>{
+      lastVoteError='Could not reach the server.';
+      return false;
     });
-  }catch(e){}
+  voteQueue.push(p);
+  return p;
 }
 
 async function finishVoting(){
   swipeContainer.classList.add('hidden');
   done.classList.remove('hidden');
-  try{
-    await fetch(`${API}/rooms/${code}/done`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({display_name:name})
-    });
-  }catch(e){}
+  await Promise.allSettled(voteQueue);
+  for(let attempt=0;attempt<10;attempt++){
+    try{
+      const res=await fetch(`${API}/rooms/${code}/done`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({display_name:name})
+      });
+      if(res.ok)break;
+    }catch(e){}
+    await new Promise(r=>setTimeout(r,500));
+  }
   pollForResults();
 }
 
@@ -156,19 +370,94 @@ function showResults(results){
 // Drag
 let startX=0,currentX=0,dragging=false;
 const card=document.getElementById('card');
+const swipeGlow=document.getElementById('swipeGlow');
+const swipeAura=document.getElementById('swipeAura');
 card.addEventListener('mousedown',start);
 card.addEventListener('touchstart',start);
 
 function start(e){dragging=true;startX=getX(e);document.addEventListener('mousemove',move);document.addEventListener('touchmove',move);document.addEventListener('mouseup',endDrag);document.addEventListener('touchend',endDrag);}
-function move(e){if(!dragging)return;currentX=getX(e)-startX;card.style.transform=`translateX(${currentX}px) rotate(${currentX/10}deg)`;if(currentX>50){likeLabel.style.display='block';nopeLabel.style.display='none'}else if(currentX<-50){nopeLabel.style.display='block';likeLabel.style.display='none'}else{likeLabel.style.display='none';nopeLabel.style.display='none'}}
+function move(e){
+  if(!dragging||swipeLocked)return;
+  currentX=getX(e)-startX;
+  card.style.transform=`translateX(${currentX}px) rotate(${currentX/10}deg)`;
+  if(currentX>50){
+    likeLabel.style.display='block';
+    nopeLabel.style.display='none';
+  }else if(currentX<-50){
+    nopeLabel.style.display='block';
+    likeLabel.style.display='none';
+  }else{
+    likeLabel.style.display='none';
+    nopeLabel.style.display='none';
+  }
+  updateSwipeGlow(currentX);
+}
 function endDrag(){dragging=false;if(currentX>120)swipeCard(true);else if(currentX<-120)swipeCard(false);else resetCard();document.removeEventListener('mousemove',move);document.removeEventListener('touchmove',move);document.removeEventListener('mouseup',endDrag);document.removeEventListener('touchend',endDrag);}
-function swipeCard(like){card.style.transition='0.3s';card.style.transform=`translateX(${like?500:-500}px) rotate(${like?20:-20}deg)`;sendVote(like);setTimeout(()=>{index++;card.style.transition='none';resetCard();loadMovie();},300);}
+async function swipeCard(like){
+  if(swipeLocked || index>=movies.length)return;
+  swipeLocked=true;
+  flashSwipeGlow(like);
+  card.style.transition='0.3s';
+  card.style.transform=`translateX(${like?500:-500}px) rotate(${like?20:-20}deg)`;
+  const movieId=movies[index].id;
+  const voteResult=await sendVote(movieId,like);
+  await new Promise(resolve=>setTimeout(resolve,300));
+  if(voteResult===false){
+    card.style.transition='none';
+    resetCard();
+    swipeLocked=false;
+    document.getElementById('doneMsg').innerText='Could not save that vote';
+    document.getElementById('doneDetail').innerText=lastVoteError||'Please try swiping again.';
+    done.classList.remove('hidden');
+    swipeContainer.classList.add('hidden');
+    setTimeout(()=>{
+      done.classList.add('hidden');
+      swipeContainer.classList.remove('hidden');
+    },1200);
+    return;
+  }
+  index++;
+  card.style.transition='none';
+  resetCard();
+  swipeLocked=false;
+  loadMovie();
+}
 function btnSwipe(like){swipeCard(like);}
-function resetCard(){currentX=0;card.style.transform='';likeLabel.style.display='none';nopeLabel.style.display='none';}
+function resetCard(){
+  currentX=0;
+  card.style.transform='';
+  likeLabel.style.display='none';
+  nopeLabel.style.display='none';
+  swipeGlow.style.opacity='0';
+  swipeGlow.className='swipeGlow';
+  swipeAura.style.opacity='0';
+  swipeAura.className='swipeAura';
+  swipeLocked=false;
+}
 function getX(e){return e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX}
+function updateSwipeGlow(offset){
+  const strength=Math.min(Math.abs(offset)/115,1);
+  swipeGlow.className=`swipeGlow ${offset >= 0 ? 'yes' : 'no'}`;
+  swipeAura.className=`swipeAura ${offset >= 0 ? 'yes' : 'no'}`;
+  if(Math.abs(offset) < 14){
+    swipeGlow.style.opacity='0';
+    swipeGlow.className='swipeGlow';
+    swipeAura.style.opacity='0';
+    swipeAura.className='swipeAura';
+    return;
+  }
+  swipeGlow.style.opacity=String(strength);
+  swipeAura.style.opacity=String(Math.min(.34 + strength * .78, 1));
+}
+function flashSwipeGlow(like){
+  swipeGlow.className=`swipeGlow ${like ? 'yes' : 'no'}`;
+  swipeAura.className=`swipeAura ${like ? 'yes' : 'no'}`;
+  swipeGlow.style.opacity='1';
+  swipeAura.style.opacity='1';
+}
 
 if(!code||!name){location.href='index.html';}
-else{loadMovies();}
+else{waitForStart();}
 </script>
 </body>
 </html>

@@ -70,4 +70,5 @@ def get_voting_status(code):
         "done": len(room["done"]),
         "total": len(room["users"]),
         "finished": len(room["done"]) == len(room["users"]) and len(room["users"]) > 0,
+        "started": room.get("started", False),
     }

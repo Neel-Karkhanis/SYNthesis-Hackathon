@@ -6,36 +6,246 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Host</title>
 <style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6366f1,#9333ea);color:white;text-align:center;padding:30px;min-height:100vh}
-h1{margin-bottom:10px}
-.code{font-size:42px;font-weight:bold;letter-spacing:8px;margin:10px 0;background:rgba(255,255,255,.15);padding:14px;border-radius:12px;display:inline-block}
-.players{margin:10px 0;opacity:.9}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;max-width:1000px;margin:20px auto}
-.movie{background:white;color:black;border-radius:16px;padding:10px}
-.movie img{width:100%;border-radius:12px;aspect-ratio:2/3;object-fit:cover}
-.movie p{margin-top:8px;font-size:14px;font-weight:bold}
-button{margin-top:20px;padding:14px 28px;border:none;border-radius:10px;background:#22c55e;color:white;font-size:16px;cursor:pointer}
-button:disabled{background:#9ca3af;cursor:not-allowed}
-.err{color:#fecaca;margin-top:10px}
+:root{
+  --sky-left:#3052ff;
+  --sky-right:#6d52ff;
+  --card-bg:#ffffff;
+  --card-border:#1b1840;
+  --text:#1a1835;
+  --muted:#685f9d;
+  --accent:#ffcb21;
+  --accent-strong:#ffb800;
+  --accent-text:#1a1835;
+  --secondary:#ffffff;
+  --secondary-text:#2b2762;
+  --danger:#ffd3dc;
+  --pink:#ff88d3;
+  --mint:#7cf3e6;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Arial Rounded MT Bold","Avenir Next Rounded","Nunito","Trebuchet MS",Arial,sans-serif}
+body{
+  min-height:100vh;
+  padding:28px 18px 48px;
+  color:#fff;
+  background:linear-gradient(90deg,var(--sky-left),var(--sky-right));
+  position:relative;
+  overflow-x:hidden;
+}
+.scene{
+  width:min(100%,1180px);
+  margin:0 auto;
+  position:relative;
+}
+.sparkle,.dot{position:absolute;z-index:1;pointer-events:none}
+.sparkle{width:34px;height:34px;background:url('assets/star-sparkle.png') center / contain no-repeat}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--card-border)}
+.dot.pink{background:var(--pink)}
+.dot.mint{background:var(--mint)}
+.shell{
+  position:relative;
+  z-index:2;
+  max-width:1080px;
+  margin:0 auto;
+  text-align:center;
+}
+.hero{
+  width:min(100%,640px);
+  margin:0 auto 28px;
+  background:var(--card-bg);
+  color:var(--text);
+  border:3px solid var(--card-border);
+  border-radius:28px;
+  box-shadow:0 20px 0 rgba(27,24,64,.15),0 26px 60px rgba(22,15,76,.24);
+  padding:34px 28px 28px;
+}
+.hero::before{
+  content:"movie night made simple";
+  display:block;
+  margin-bottom:16px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+  color:var(--muted);
+}
+h1{margin-bottom:10px;font-size:clamp(2.3rem,5vw,3rem);line-height:1;letter-spacing:-.03em}
+.sub{color:var(--muted);font-size:1rem}
+.code{
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:8px;
+  margin:18px 0 10px;
+  background:#fbfaff;
+  color:var(--text);
+  padding:14px 18px;
+  border:3px solid var(--card-border);
+  border-radius:18px;
+  display:inline-block;
+  box-shadow:0 8px 0 rgba(27,24,64,.1);
+}
+.players{margin:6px 0 12px;color:var(--secondary-text);font-weight:900}
+.catalog-title{
+  margin:18px auto 18px;
+  width:max-content;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(255,255,255,.16);
+  border:2px solid rgba(255,255,255,.22);
+  font-size:1.15rem;
+  font-weight:900;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+  max-width:1080px;
+  margin:0 auto 14px;
+}
+.movie{
+  background:var(--card-bg);
+  color:var(--text);
+  border-radius:22px;
+  padding:12px;
+  border:3px solid var(--card-border);
+  box-shadow:0 12px 0 rgba(27,24,64,.1);
+}
+.movie img{width:100%;border-radius:14px;aspect-ratio:2/3;object-fit:cover;border:3px solid var(--card-border)}
+.movie p{margin-top:10px;font-size:14px;font-weight:900}
+.placeholder{aspect-ratio:2/3;background:#ddd;border-radius:14px;border:3px solid var(--card-border)}
+button{
+  margin-top:20px;
+  padding:15px 28px;
+  border:3px solid var(--card-border);
+  border-radius:14px;
+  background:linear-gradient(180deg,#ffe66b,var(--accent-strong));
+  color:var(--accent-text);
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 0 rgba(27,24,64,.14);
+  transition:
+    transform .22s cubic-bezier(.22,1,.36,1),
+    box-shadow .22s cubic-bezier(.22,1,.36,1),
+    filter .18s ease,
+    background .22s ease;
+  will-change:transform;
+}
+button:hover:not(:disabled){
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 14px 0 rgba(27,24,64,.12);
+  filter:saturate(1.08) brightness(1.03);
+}
+button:active:not(:disabled){
+  transform:translateY(2px) scale(.99);
+  box-shadow:0 4px 0 rgba(27,24,64,.12);
+  filter:saturate(.98);
+}
+button:disabled{background:linear-gradient(135deg,#d5d9e6,#b8bfd1);box-shadow:none;cursor:not-allowed}
+.err{color:var(--danger);margin-top:10px;font-weight:700}
+.searchBox{
+  max-width:640px;
+  margin:10px auto 6px;
+  display:flex;
+  gap:10px;
+}
+.searchBox input{
+  flex:1;
+  padding:14px 16px;
+  border:3px solid var(--card-border);
+  border-radius:14px;
+  background:#fbfaff;
+  color:var(--text);
+  font-size:15px;
+  font-weight:700;
+}
+.searchBox button{
+  margin-top:0;
+  padding:10px 18px;
+}
+.searchResults{
+  max-width:1080px;
+  margin:10px auto 18px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:14px;
+}
+.searchResult{
+  background:var(--card-bg);
+  color:var(--text);
+  border:3px solid var(--card-border);
+  border-radius:16px;
+  padding:10px;
+  box-shadow:0 8px 0 rgba(27,24,64,.1);
+  text-align:left;
+}
+.searchResult img{width:100%;border-radius:10px;aspect-ratio:2/3;object-fit:cover;border:2px solid var(--card-border)}
+.searchResult p{margin-top:8px;font-size:13px;font-weight:900}
+.searchResult button{margin-top:8px;padding:8px 10px;font-size:13px}
+.movie .removeBtn{margin-top:8px;padding:8px 10px;font-size:13px;background:#fff;color:var(--text)}
+.custom-section{
+  max-width:1080px;
+  margin:0 auto;
+  padding:20px;
+  background:rgba(255,255,255,.12);
+  border:2px solid rgba(255,255,255,.22);
+  border-radius:20px;
+  margin-bottom:18px;
+}
+@media (max-width: 600px){
+  body{padding:18px 14px 36px}
+  .hero{padding:28px 20px 22px;border-radius:24px}
+  .code{font-size:32px;letter-spacing:5px}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:16px}
+}
 </style>
 </head>
 <body>
+<div class="scene">
+<div class="dot pink" style="top:24px;left:14px;"></div>
+<div class="dot mint" style="top:126px;left:86px;"></div>
+<div class="dot pink" style="top:448px;left:28px;"></div>
+<div class="dot mint" style="top:58px;left:314px;"></div>
+<div class="dot pink" style="top:72px;right:200px;"></div>
+<div class="dot mint" style="top:170px;right:36px;"></div>
+<div class="dot pink" style="top:520px;right:30px;"></div>
+<div class="sparkle" style="top:96px;left:-4px;"></div>
+<div class="sparkle" style="top:236px;left:120px;"></div>
+<div class="sparkle" style="top:84px;right:340px;"></div>
+<div class="sparkle" style="top:136px;right:18px;"></div>
+<div class="sparkle" style="top:432px;right:120px;"></div>
 
-<h1>Your Room</h1>
-<div class="code" id="code"></div>
-<div class="players">Players: <span id="players">1</span></div>
-<p>Share the code with your friends!</p>
+<div class="shell">
+<div class="hero">
+  <h1>Votely</h1>
+  <div class="sub">Your room is ready. Share the code and get everyone voting.</div>
+  <div class="code" id="code"></div>
+  <div class="players">Players: <span id="players">1</span></div>
+  <div class="sub">Share the code with your friends!</div>
+</div>
 
-<h2 style="margin-top:30px">Movie Catalog</h2>
+<div id="customSection" class="custom-section hidden">
+  <div class="catalog-title" style="margin-top:0">Add Movies</div>
+  <div class="searchBox">
+    <input id="searchInput" placeholder="Search for a movie..." />
+    <button onclick="runSearch()">Search</button>
+  </div>
+  <div id="searchResults" class="searchResults"></div>
+</div>
+
+<div class="catalog-title">Movie Catalog</div>
 <div id="grid" class="grid"></div>
 <div id="err" class="err"></div>
 <button onclick="startGame()">Start Swiping</button>
+</div>
+</div>
 
 <script>
 const API="";
-const code=localStorage.getItem('roomCode');
-const name=localStorage.getItem('displayName');
+const readStored = key => sessionStorage.getItem(key) ?? localStorage.getItem(key);
+const code=readStored('roomCode');
+const name=readStored('displayName');
+const isCustom=readStored('usePremade')==='0';
 document.getElementById('code').innerText=code||'???';
+if(isCustom)document.getElementById('customSection').classList.remove('hidden');
 
 async function loadMovies(){
   try{
@@ -44,16 +254,63 @@ async function loadMovies(){
     if(!res.ok){document.getElementById('err').textContent=movies.error||'Failed to load movies.';return;}
     const grid=document.getElementById('grid');
     grid.innerHTML='';
+    if(movies.length===0){
+      grid.innerHTML='<p style="grid-column:1/-1;opacity:.85">No movies yet. Search above to add some.</p>';
+      return;
+    }
     movies.forEach(m=>{
       const div=document.createElement('div');
       div.className='movie';
-      const img=m.poster?`<img src="${m.poster}">`:`<div style="aspect-ratio:2/3;background:#ddd;border-radius:12px"></div>`;
-      div.innerHTML=`${img}<p>${m.title}</p>`;
+      const img=m.poster?`<img src="${m.poster}">`:`<div class="placeholder"></div>`;
+      const removeBtn=isCustom?`<button class="removeBtn" onclick="removeMovie(${m.id})">Remove</button>`:'';
+      div.innerHTML=`${img}<p>${m.title}</p>${removeBtn}`;
       grid.appendChild(div);
     });
   }catch(e){
     document.getElementById('err').textContent='Could not reach the server.';
   }
+}
+
+async function runSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(!q)return;
+  try{
+    const res=await fetch(`${API}/rooms/${code}/movies/search?q=${encodeURIComponent(q)}&display_name=${encodeURIComponent(name)}`);
+    const results=await res.json();
+    const wrap=document.getElementById('searchResults');
+    wrap.innerHTML='';
+    if(!res.ok){wrap.innerHTML=`<p style="opacity:.85">${results.error||'Search failed.'}</p>`;return;}
+    if(results.length===0){wrap.innerHTML='<p style="opacity:.85">No results.</p>';return;}
+    results.forEach(m=>{
+      const div=document.createElement('div');
+      div.className='searchResult';
+      const img=m.poster?`<img src="${m.poster}">`:`<div class="placeholder"></div>`;
+      div.innerHTML=`${img}<p>${m.title}</p><button onclick="addMovie(${m.id})">Add</button>`;
+      wrap.appendChild(div);
+    });
+  }catch(e){
+    document.getElementById('searchResults').innerHTML='<p style="opacity:.85">Could not reach the server.</p>';
+  }
+}
+
+async function addMovie(movieId){
+  try{
+    const res=await fetch(`${API}/rooms/${code}/movies`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({display_name:name,movie_id:movieId})
+    });
+    if(!res.ok){const d=await res.json();alert(d.error||'Failed to add.');return;}
+    loadMovies();
+  }catch(e){alert('Could not reach the server.');}
+}
+
+async function removeMovie(movieId){
+  try{
+    const res=await fetch(`${API}/rooms/${code}/movies/${movieId}?display_name=${encodeURIComponent(name)}`,{method:'DELETE'});
+    if(!res.ok){const d=await res.json();alert(d.error||'Failed to remove.');return;}
+    loadMovies();
+  }catch(e){alert('Could not reach the server.');}
 }
 
 async function pollStatus(){
@@ -64,9 +321,32 @@ async function pollStatus(){
   }catch(e){}
 }
 
-function startGame(){
+async function startGame(){
+  const res=await fetch(`${API}/rooms/${code}/movies`);
+  const movies=await res.json();
+  if(!Array.isArray(movies)||movies.length===0){
+    document.getElementById('err').textContent='Add at least one movie before starting.';
+    return;
+  }
+  try{
+    const startRes=await fetch(`${API}/rooms/${code}/start`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({display_name:name})
+    });
+    if(!startRes.ok){
+      const d=await startRes.json();
+      document.getElementById('err').textContent=d.error||'Failed to start.';
+      return;
+    }
+  }catch(e){
+    document.getElementById('err').textContent='Could not reach the server.';
+    return;
+  }
   location.href='player.html';
 }
+
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
 
 loadMovies();
 pollStatus();

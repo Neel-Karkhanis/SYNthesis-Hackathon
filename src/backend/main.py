@@ -156,6 +156,24 @@ def status(code):
         return err(str(e), 404)
 
 
+@app.route("/rooms/<code>/start", methods=["POST"])
+def start(code):
+    body = request.get_json() or {}
+    requester = body.get("display_name", "").strip()
+    room = get_room(code)
+    if not room:
+        return err("Room not found.", 404)
+    try:
+        if not is_host(code, requester):
+            return err("Only the host can start the game.", 403)
+    except ValueError as e:
+        return err(str(e), 404)
+    if not room["movies"]:
+        return err("Add at least one movie before starting.")
+    room["started"] = True
+    return jsonify({"ok": True}), 200
+
+
 # --- Results endpoint ---
 
 @app.route("/rooms/<code>/results", methods=["GET"])

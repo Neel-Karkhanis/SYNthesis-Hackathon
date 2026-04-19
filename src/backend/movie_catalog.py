@@ -8,9 +8,9 @@ TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 def initialize_catalog(code, api_key, use_premade=True):
     """
     Called right after create_room().
-    use_premade=True  → fills the room with 20 popular movies from TMDB.
+    use_premade=True  → fills the room with 8 popular movies from TMDB.
     use_premade=False → leaves the catalog empty; host adds movies manually via add_movie_to_room().
-    Returns the catalog (empty list or 20 movies).
+    Returns the catalog (empty list or 8 movies).
     """
     code = code.upper()
     if code not in rooms:
@@ -25,7 +25,7 @@ def initialize_catalog(code, api_key, use_premade=True):
 
 def fetch_movies_for_room(code, api_key):
     """
-    Fetch 10 popular movies from TMDB and store them in the given room.
+    Fetch 8 popular movies from TMDB and store them in the given room.
     Raises ValueError if the room doesn't exist.
     Raises RuntimeError if the TMDB request fails.
     """
@@ -41,7 +41,7 @@ def fetch_movies_for_room(code, api_key):
     if not response.ok:
         raise RuntimeError(f"TMDB request failed: {response.status_code} {response.text}")
 
-    raw = response.json().get("results", [])[:10]
+    raw = response.json().get("results", [])[:8]
 
     movies = [
         {

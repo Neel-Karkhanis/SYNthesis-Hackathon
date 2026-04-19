@@ -6,7 +6,7 @@ A web app where a group of friends can collectively decide what movie to watch. 
 
 ## How It Works
 
-1. **Create a room** — the host gets a 4-letter join code and chooses either a premade catalog of 20 popular movies from TMDB or builds a custom list
+1. **Create a room** — the host gets a 4-letter join code and chooses either a premade catalog of 8 popular movies from TMDB or builds a custom list
 2. **Everyone joins** — friends enter the code and a display name, no account needed
 3. **Swipe yes/no** — each user votes on every movie in the catalog
 4. **Winner revealed**
@@ -23,7 +23,7 @@ A web app where a group of friends can collectively decide what movie to watch. 
 
 ## Backend API
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:8000`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -45,10 +45,26 @@ Host-only endpoints reject non-host users. The catalog locks as soon as the firs
 **Backend:**
 ```bash
 cd src/backend
-pip install -r requirements.txt
+pip install -r ../../requirements.txt
 export TMDB_API_KEY=your_key_here
 python main.py
 ```
+
+## Deploying On Render
+
+Use a Python web service with:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start command:
+
+```bash
+cd src/backend && python main.py
+```
+
+`main.py` now binds to `0.0.0.0` and uses Render's `PORT` environment variable automatically.
 
 **Frontend:**
 ```bash

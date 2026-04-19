@@ -31,6 +31,7 @@ def swipe(code, display_name, movie_id, vote):
 
     room["votes"][movie_id][display_name] = vote
     room["voting_started"] = True
+    room["results_cache"] = None
 
 
 def finish_voting(code, display_name):
@@ -55,6 +56,7 @@ def finish_voting(code, display_name):
         raise ValueError(f"'{display_name}' still has {missing} movie(s) left to vote on.")
 
     room["done"].add(display_name)
+    room["results_cache"] = None
 
 
 def get_voting_status(code):

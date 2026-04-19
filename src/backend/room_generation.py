@@ -23,6 +23,7 @@ def create_room(host_name):
         "done": set(),         # users who finished voting
         "voting_started": False,
         "started": False,      # host has clicked Start Swiping
+        "results_cache": None, # frozen final results once computed
     }
     return code
 
@@ -40,6 +41,7 @@ def join_room(code, display_name):
     if display_name in room["users"]:
         raise ValueError(f"Display name '{display_name}' is already taken in this room.")
     room["users"].append(display_name)
+    room["results_cache"] = None
     return room
 
 

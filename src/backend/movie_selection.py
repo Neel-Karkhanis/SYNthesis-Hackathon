@@ -18,6 +18,9 @@ def get_results(code):
 
     room = rooms[code]
 
+    if room.get("results_cache") is not None:
+        return room["results_cache"]
+
     if not room["users"]:
         raise ValueError("Room has no users.")
     if not room["movies"]:
@@ -45,6 +48,7 @@ def get_results(code):
         winner = random.choice(unanimous)
         for entry in tally:
             entry["winner"] = entry is winner
+        room["results_cache"] = tally
         return tally
 
     # Fallback: fewest no votes wins
@@ -52,4 +56,5 @@ def get_results(code):
     for entry in tally:
         entry["winner"] = entry["no"] == min_no
 
+    room["results_cache"] = tally
     return tally

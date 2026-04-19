@@ -20,6 +20,7 @@ def initialize_catalog(code, api_key, use_premade=True):
         return fetch_movies_for_room(code, api_key)
 
     rooms[code]["movies"] = []
+    rooms[code]["results_cache"] = None
     return []
 
 
@@ -55,6 +56,7 @@ def fetch_movies_for_room(code, api_key):
     ]
 
     rooms[code]["movies"] = movies
+    rooms[code]["results_cache"] = None
     return movies
 
 
@@ -116,6 +118,7 @@ def add_movie_to_room(code, movie_id, api_key):
         "poster": f"{TMDB_IMAGE_BASE}{m['poster_path']}" if m.get("poster_path") else None,
         "rating": m.get("vote_average"),
     })
+    rooms[code]["results_cache"] = None
     return rooms[code]["movies"]
 
 
@@ -137,4 +140,5 @@ def remove_movie_from_room(code, movie_id):
         raise ValueError(f"Movie ID {movie_id} is not in room '{code}'.")
 
     rooms[code]["movies"] = updated
+    rooms[code]["results_cache"] = None
     return updated

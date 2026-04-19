@@ -6,9 +6,27 @@ from movie_catalog import initialize_catalog, search_movies, add_movie_to_room, 
 from voting import swipe, finish_voting, get_voting_status
 from movie_selection import get_results
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../../frontend", static_url_path="")
 CORS(app)
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "")
+
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        from flask import make_response
+        res = make_response()
+        res.headers["Access-Control-Allow-Origin"] = "*"
+        res.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        res.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
+        return res
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
+    return response
 
 
 def err(msg, status=400):
